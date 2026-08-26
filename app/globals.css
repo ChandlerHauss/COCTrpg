@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+/* dark: 变体跟随 data-theme 属性（而非默认的 prefers-color-scheme），
+   使语义色可通过 dark: 前缀做深浅适配 */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ============================================================
+   Liquid Glass 设计系统
+   极简 · 内容优先 · 半透明磨砂 · 深/浅双主题
+   ============================================================ */
+
+/* —— 浅色（默认）—— */
+:root {
+  --background: #f4f5f8;
+  --surface: rgba(255, 255, 255, 0.55);
+  --surface-strong: rgba(255, 255, 255, 0.8);
+  --foreground: #1a1d21;
+  --muted: #69717c;
+  --border: rgba(17, 24, 39, 0.08);
+  --accent: #5b6bd6;
+  --accent-foreground: #ffffff;
+  --ambient-1: rgba(99, 102, 241, 0.1);
+  --ambient-2: rgba(14, 165, 233, 0.09);
+  --glass-blur: 18px;
+  --glass-saturate: 160%;
+}
+
+/* —— 深色（跟随系统偏好，除非手动指定 light）—— */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #0c0e12;
+    --surface: rgba(255, 255, 255, 0.06);
+    --surface-strong: rgba(255, 255, 255, 0.1);
+    --foreground: #e8eaee;
+    --muted: #9aa1ac;
+    --border: rgba(255, 255, 255, 0.1);
+    --accent: #7c88f2;
+    --accent-foreground: #0c0e12;
+    --ambient-1: rgba(99, 102, 241, 0.14);
+    --ambient-2: rgba(14, 165, 233, 0.1);
+  }
+}
+
+/* —— 手动覆盖 —— */
+[data-theme="dark"] {
+  --background: #0c0e12;
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-strong: rgba(255, 255, 255, 0.1);
+  --foreground: #e8eaee;
+  --muted: #9aa1ac;
+  --border: rgba(255, 255, 255, 0.1);
+  --accent: #7c88f2;
+  --accent-foreground: #0c0e12;
+  --ambient-1: rgba(99, 102, 241, 0.14);
+  --ambient-2: rgba(14, 165, 233, 0.1);
+}
+
+[data-theme="light"] {
+  --background: #f4f5f8;
+  --surface: rgba(255, 255, 255, 0.55);
+  --surface-strong: rgba(255, 255, 255, 0.8);
+  --foreground: #1a1d21;
+  --muted: #69717c;
+  --border: rgba(17, 24, 39, 0.08);
+  --accent: #5b6bd6;
+  --accent-foreground: #ffffff;
+  --ambient-1: rgba(99, 102, 241, 0.1);
+  --ambient-2: rgba(14, 165, 233, 0.09);
+}
+
+/* —— 暴露为 Tailwind 工具类（bg-background / text-muted / bg-accent …）—— */
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+}
+
+/* —— 玻璃工具类 —— */
+.glass {
+  background: var(--surface);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-strong {
+  background: var(--surface-strong);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.5))
+    saturate(var(--glass-saturate));
+  backdrop-filter: blur(calc(var(--glass-blur) * 1.5)) saturate(var(--glass-saturate));
+  border: 1px solid var(--border);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.16),
+    0 10px 32px -8px rgba(0, 0, 0, 0.25);
+}
+
+/* —— 基础 —— */
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(120% 80% at 15% -10%, var(--ambient-1), transparent 60%),
+    radial-gradient(120% 80% at 100% 110%, var(--ambient-2), transparent 60%);
+  background-attachment: fixed;
+  color: var(--foreground);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "Segoe UI", Roboto,
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted) 35%, transparent) transparent;
+}
+
+/* —— 减少动态：关闭动效与模糊 —— */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .glass,
+  .glass-strong {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
