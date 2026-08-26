@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import type {
-  CharacterCard,
+  Character,
+  CharacterInput,
   ConnectionStatus,
   Message,
   Room,
   RoomMember,
-  Skill,
 } from "@/lib/types";
 import MemberSidebar from "./MemberSidebar";
 import ChatLog from "./ChatLog";
 import DicePanel from "./DicePanel";
+import CharacterEditorDialog from "./CharacterEditorDialog";
 import type { BgMode } from "./Background";
 
 export default function RoomShell({
@@ -24,9 +25,12 @@ export default function RoomShell({
   connectionStatus,
   isKp = false,
   characters = [],
+  npcs = [],
   activeCharacterId = null,
   onSelectCharacter,
-  onCreateCharacter,
+  saveCharacter,
+  deleteCharacter,
+  uploadAvatar,
 }: {
   room: Room;
   members: RoomMember[];
@@ -36,14 +40,25 @@ export default function RoomShell({
   onlineUserIds?: Set<string>;
   connectionStatus?: ConnectionStatus;
   isKp?: boolean;
-  characters?: CharacterCard[];
+  characters?: Character[];
+  npcs?: Character[];
   activeCharacterId?: string | null;
   onSelectCharacter?: (id: string) => Promise<void>;
-  onCreateCharacter?: (name: string, skills: Skill[]) => Promise<string | null>;
+  saveCharacter?: (input: CharacterInput, id?: string) => Promise<string | null>;
+  deleteCharacter?: (id: string) => Promise<void>;
+  uploadAvatar?: (file: File) => Promise<string | null>;
 }) {
   const [bgMode, setBgMode] = useState<BgMode>("room");
   // KP 默认开「KP 视角」看到暗骰；PL 恒为 PL 视角
   const [kpView, setKpView] = useState(isKp);
+  // 人物卡编辑器（null=关闭；character=null 表示新建）
+  const [editor, setEditor] = useState<{
+    character: Character | null;
+    mode: "pc" | "npc";
+  } | null>(null);
+
+  const openEditor = (character: Character | null, mode: "pc" | "npc") =>
+    setEditor({ character, mode });
 
   return (
     <div className="h-dvh w-full overflow-x-auto text-foreground">
@@ -53,6 +68,11 @@ export default function RoomShell({
           members={members}
           currentUserId={currentUserId}
           onlineUserIds={onlineUserIds}
+          isKp={isKp}
+          npcs={npcs}
+          characters={characters}
+          onEdit={openEditor}
+          onDelete={(id) => deleteCharacter?.(id)}
         />
         <ChatLog
           roomName={room.name}
@@ -73,10 +93,22 @@ export default function RoomShell({
           characters={characters}
           activeCharacterId={activeCharacterId}
           onSelectCharacter={onSelectCharacter}
-          onCreateCharacter={onCreateCharacter}
+          onNewCharacter={() => openEditor(null, "pc")}
           onSend={onSend}
         />
       </div>
+
+      {editor && saveCharacter && uploadAvatar && (
+        <CharacterEditorDialog
+          character={editor.character}
+          mode={editor.mode}
+          isKp={isKp}
+          userId={currentUserId}
+          onClose={() => setEditor(null)}
+          onSave={saveCharacter}
+          uploadAvatar={uploadAvatar}
+        />
+      )}
     </div>
   );
 }

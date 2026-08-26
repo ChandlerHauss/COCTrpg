@@ -154,3 +154,63 @@ alter table public.messages
   add column if not exists is_hidden    boolean not null default false;
 
 notify pgrst, 'reload schema';
+
+-- =====================================================================
+-- Phase 5 完整人物卡（COC 7 字段 + NPC + 头像 Storage）
+-- =====================================================================
+
+-- 12. characters 扩充完整 COC 7 字段 + NPC
+alter table public.characters
+  add column if not exists occupation  text,
+  add column if not exists age         int,
+  add column if not exists str         int,
+  add column if not exists con         int,
+  add column if not exists siz         int,
+  add column if not exists dex         int,
+  add column if not exists app         int,
+  add column if not exists int         int,
+  add column if not exists pow         int,
+  add column if not exists edu         int,
+  add column if not exists hp          int,
+  add column if not exists hp_max      int,
+  add column if not exists san         int,
+  add column if not exists san_max     int,
+  add column if not exists mp          int,
+  add column if not exists mp_max      int,
+  add column if not exists status      text not null default 'normal'
+             check (status in ('normal','temp_insane','indefinite_insane','perm_insane')),
+  add column if not exists is_npc      boolean not null default false,
+  add column if not exists is_hidden   boolean not null default false,
+  add column if not exists avatar_url  text,
+  add column if not exists room_id     uuid references public.rooms(id) on delete cascade;
+
+create index if not exists characters_room_idx on public.characters(room_id)
+  where room_id is not null;
+
+-- 13. 头像存储桶：公开读、按 user_id 目录写
+insert into storage.buckets (id, name, public)
+  values ('avatars', 'avatars', true)
+  on conflict (id) do nothing;
+
+create policy "avatars_public_read" on storage.objects
+  for select using (bucket_id = 'avatars');
+
+create policy "avatars_insert_own" on storage.objects
+  for insert with check (
+    bucket_id = 'avatars'
+    and auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+create policy "avatars_update_own" on storage.objects
+  for update using (
+    bucket_id = 'avatars'
+    and auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+create policy "avatars_delete_own" on storage.objects
+  for delete using (
+    bucket_id = 'avatars'
+    and auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+notify pgrst, 'reload schema';

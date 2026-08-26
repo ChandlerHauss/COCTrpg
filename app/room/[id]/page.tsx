@@ -2,7 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import LiveRoom from "@/components/room/LiveRoom";
 import JoinRoomDialog from "@/components/lobby/JoinRoomDialog";
-import type { CharacterCard, Room, RoomMember, Skill } from "@/lib/types";
+import { rowToCharacter, type CharacterRow } from "@/lib/character";
+import type { Character, Room, RoomMember } from "@/lib/types";
 
 export default async function RoomPage({
   params,
@@ -90,18 +91,27 @@ export default async function RoomPage({
     bgOpacity: Number(roomRow.bg_opacity),
   };
 
-  // 我的最小人物卡（骰子系统所需）+ 本房活跃角色
-  const { data: characterRows } = await supabase
+  // 我的 PC（完整 COC 7 字段）+ 房间 NPC + 本房活跃角色
+  const { data: pcRows } = await supabase
     .from("characters")
-    .select("id, name, skills")
+    .select("*")
     .eq("owner_id", user.id)
+    .eq("is_npc", false)
     .order("created_at", { ascending: true });
 
-  const characters: CharacterCard[] = (characterRows ?? []).map((c) => ({
-    id: c.id,
-    name: c.name,
-    skills: Array.isArray(c.skills) ? (c.skills as Skill[]) : [],
-  }));
+  const { data: npcRows } = await supabase
+    .from("characters")
+    .select("*")
+    .eq("room_id", id)
+    .eq("is_npc", true)
+    .order("created_at", { ascending: true });
+
+  const characters: Character[] = (pcRows ?? []).map((c) =>
+    rowToCharacter(c as CharacterRow)
+  );
+  const npcs: Character[] = (npcRows ?? []).map((c) =>
+    rowToCharacter(c as CharacterRow)
+  );
 
   const activeCharacterId = myMembership.active_character_id ?? null;
 
@@ -111,6 +121,7 @@ export default async function RoomPage({
       members={members}
       currentUserId={user.id}
       characters={characters}
+      npcs={npcs}
       activeCharacterId={activeCharacterId}
     />
   );

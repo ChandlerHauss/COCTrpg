@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { CharacterCard, Skill } from "@/lib/types";
+import type { Character } from "@/lib/types";
 import type { BgMode } from "./Background";
-import CharacterDialog from "./CharacterDialog";
 
 export default function DicePanel({
   bgMode,
@@ -14,7 +13,7 @@ export default function DicePanel({
   characters,
   activeCharacterId,
   onSelectCharacter,
-  onCreateCharacter,
+  onNewCharacter,
   onSend,
 }: {
   bgMode: BgMode;
@@ -22,14 +21,13 @@ export default function DicePanel({
   kpView: boolean;
   setKpView: (v: boolean) => void;
   isKp: boolean;
-  characters: CharacterCard[];
+  characters: Character[];
   activeCharacterId: string | null;
   onSelectCharacter?: (id: string) => Promise<void>;
-  onCreateCharacter?: (name: string, skills: Skill[]) => Promise<string | null>;
+  onNewCharacter?: () => void;
   onSend?: (input: string) => Promise<string | null>;
 }) {
   const [activeSkill, setActiveSkill] = useState<string | null>(null);
-  const [showDialog, setShowDialog] = useState(false);
 
   const activeCharacter = characters.find((c) => c.id === activeCharacterId) ?? null;
   const skills = activeCharacter?.skills ?? [];
@@ -124,7 +122,7 @@ export default function DicePanel({
             <p className="text-[11px] text-muted">还没有角色，先建一张人物卡</p>
             <button
               type="button"
-              onClick={() => setShowDialog(true)}
+              onClick={() => onNewCharacter?.()}
               className="mt-2 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-accent-foreground transition-all duration-300 hover:opacity-90"
             >
               新建角色
@@ -151,7 +149,7 @@ export default function DicePanel({
               </select>
               <button
                 type="button"
-                onClick={() => setShowDialog(true)}
+                onClick={() => onNewCharacter?.()}
                 className="shrink-0 rounded-lg bg-foreground/5 px-2.5 text-xs text-foreground transition-colors duration-300 hover:bg-foreground/10"
               >
                 新建
@@ -202,10 +200,6 @@ export default function DicePanel({
           </div>
         )}
       </section>
-
-      {showDialog && onCreateCharacter && (
-        <CharacterDialog onClose={() => setShowDialog(false)} onCreate={onCreateCharacter} />
-      )}
     </aside>
   );
 }

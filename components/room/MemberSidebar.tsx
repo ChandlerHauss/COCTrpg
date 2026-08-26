@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Room, RoomMember } from "@/lib/types";
+import type { Character, Room, RoomMember } from "@/lib/types";
 import { resolveAvatarUrl } from "@/lib/avatar";
 import Avatar from "./messages/Avatar";
 
@@ -18,16 +18,75 @@ const STATUS_LABEL: Record<string, { text: string; cls: string }> = {
   archived: { text: "已归档", cls: "bg-foreground/10 text-muted" },
 };
 
+function CharacterItem({
+  c,
+  canDelete,
+  onEdit,
+  onDelete,
+}: {
+  c: Character;
+  canDelete: boolean;
+  onEdit: (c: Character) => void;
+  onDelete: (id: string) => void;
+}) {
+  return (
+    <div className="group flex items-center gap-1 rounded-xl px-2 py-1.5 transition-colors duration-300 hover:bg-foreground/5">
+      <button
+        type="button"
+        onClick={() => onEdit(c)}
+        className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
+      >
+        <Avatar url={c.avatarUrl} username={c.name} size="sm" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1">
+            <span className="truncate text-sm text-foreground">{c.name}</span>
+            {c.isHidden && (
+              <span className="shrink-0 text-[10px]" title="属性隐藏">
+                🔒
+              </span>
+            )}
+          </div>
+          {c.occupation ? (
+            <div className="truncate text-[10px] text-muted">{c.occupation}</div>
+          ) : null}
+        </div>
+      </button>
+      {canDelete && (
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm(`确认删除「${c.name}」？`)) onDelete(c.id);
+          }}
+          className="shrink-0 rounded px-1 text-xs text-muted opacity-0 transition-opacity duration-300 group-hover:opacity-100 hover:text-red-500"
+          aria-label="删除"
+        >
+          ✕
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function MemberSidebar({
   room,
   members,
   currentUserId,
   onlineUserIds,
+  isKp,
+  npcs,
+  characters,
+  onEdit,
+  onDelete,
 }: {
   room: Room;
   members: RoomMember[];
   currentUserId: string;
   onlineUserIds?: Set<string>;
+  isKp: boolean;
+  npcs: Character[];
+  characters: Character[];
+  onEdit: (character: Character | null, mode: "pc" | "npc") => void;
+  onDelete: (id: string) => void;
 }) {
   const [tab, setTab] = useState<"members" | "characters">("members");
   const status = STATUS_LABEL[room.status] ?? STATUS_LABEL.running;
@@ -109,7 +168,67 @@ export default function MemberSidebar({
             <div className="p-4 text-center text-xs text-muted">暂无成员</div>
           )
         ) : (
-          <div className="p-6 text-center text-xs text-muted">人物卡将在 Phase 3 支持</div>
+          <div className="space-y-4">
+            {/* 房间 NPC */}
+            <div>
+              <div className="mb-1 flex items-center justify-between px-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+                  房间 NPC
+                </span>
+                {isKp && (
+                  <button
+                    type="button"
+                    onClick={() => onEdit(null, "npc")}
+                    className="text-xs font-medium text-accent hover:opacity-80"
+                  >
+                    + 新建
+                  </button>
+                )}
+              </div>
+              {npcs.length > 0 ? (
+                npcs.map((c) => (
+                  <CharacterItem
+                    key={c.id}
+                    c={c}
+                    canDelete={isKp}
+                    onEdit={(cc) => onEdit(cc, "npc")}
+                    onDelete={onDelete}
+                  />
+                ))
+              ) : (
+                <p className="px-1 text-xs text-muted">暂无 NPC</p>
+              )}
+            </div>
+
+            {/* 我的角色 */}
+            <div>
+              <div className="mb-1 flex items-center justify-between px-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+                  我的角色
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onEdit(null, "pc")}
+                  className="text-xs font-medium text-accent hover:opacity-80"
+                >
+                  + 新建
+                </button>
+              </div>
+              {characters.length > 0 ? (
+                characters.map((c) => (
+                  <CharacterItem
+                    key={c.id}
+                    c={c}
+                    canDelete
+                    onEdit={(cc) => onEdit(cc, "pc")}
+                    onDelete={onDelete}
+                  />
+                ))
+              ) : (
+                <p className="px-1 text-xs text-muted">暂无角色</p>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </aside>

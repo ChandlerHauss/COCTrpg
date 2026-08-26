@@ -20,13 +20,6 @@ export interface Skill {
   isBase: boolean;
 }
 
-/** 最小人物卡：仅骰子系统所需（角色名 + 技能列表） */
-export interface CharacterCard {
-  id: string;
-  name: string;
-  skills: Skill[];
-}
-
 export interface Character {
   id: string;
   name: string;
@@ -53,6 +46,9 @@ export interface Character {
   status: CharacterStatus;
   skills: Skill[];
 }
+
+/** 人物卡可编辑字段（不含 id / ownerId，创建与更新共用） */
+export type CharacterInput = Omit<Character, "id" | "ownerId">;
 
 export interface User {
   id: string;

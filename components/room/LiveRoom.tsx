@@ -1,6 +1,6 @@
 "use client";
 
-import type { CharacterCard, Room, RoomMember } from "@/lib/types";
+import type { Character, Room, RoomMember } from "@/lib/types";
 import { useRoomRealtime } from "@/hooks/useRoomRealtime";
 import { useCharacters } from "@/hooks/useCharacters";
 import RoomShell from "./RoomShell";
@@ -11,25 +11,36 @@ export default function LiveRoom({
   members,
   currentUserId,
   characters: initialCharacters,
+  npcs: initialNpcs,
   activeCharacterId: initialActiveCharacterId,
 }: {
   room: Room;
   members: RoomMember[];
   currentUserId: string;
-  characters: CharacterCard[];
+  characters: Character[];
+  npcs: Character[];
   activeCharacterId: string | null;
 }) {
   const me = members.find((m) => m.userId === currentUserId);
   const role = me?.role ?? "pl";
   const isKp = role === "kp";
 
-  const { characters, activeCharacterId, activeCharacter, createCharacter, selectCharacter } =
-    useCharacters({
-      roomId: room.id,
-      userId: currentUserId,
-      initialCharacters,
-      initialActiveCharacterId,
-    });
+  const {
+    characters,
+    npcs,
+    activeCharacterId,
+    activeCharacter,
+    saveCharacter,
+    deleteCharacter,
+    selectCharacter,
+    uploadAvatar,
+  } = useCharacters({
+    roomId: room.id,
+    userId: currentUserId,
+    initialCharacters,
+    initialNpcs,
+    initialActiveCharacterId,
+  });
 
   const { messages, sendMessage, onlineUserIds, status } = useRoomRealtime({
     roomId: room.id,
@@ -53,9 +64,12 @@ export default function LiveRoom({
       connectionStatus={status}
       isKp={isKp}
       characters={characters}
+      npcs={npcs}
       activeCharacterId={activeCharacterId}
       onSelectCharacter={selectCharacter}
-      onCreateCharacter={createCharacter}
+      saveCharacter={saveCharacter}
+      deleteCharacter={deleteCharacter}
+      uploadAvatar={uploadAvatar}
     />
   );
 }
