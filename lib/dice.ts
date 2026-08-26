@@ -59,12 +59,12 @@ export function judgeRoll(roll: number, skill: number): RollLevel {
 
 export const ROLL_LEVEL_META: Record<
   RollLevel,
-  { label: string; emoji: string; textClass: string }
+  { label: string; emoji: string; textClass: string; glow: string }
 > = {
-  critical: { label: "大成功", emoji: "🟢", textClass: "text-emerald-600 dark:text-emerald-300" },
-  extreme: { label: "极难成功", emoji: "🔵", textClass: "text-blue-600 dark:text-blue-300" },
-  hard: { label: "困难成功", emoji: "🟦", textClass: "text-sky-600 dark:text-sky-300" },
-  success: { label: "成功", emoji: "⚪", textClass: "text-foreground" },
-  fail: { label: "失败", emoji: "🔴", textClass: "text-red-600 dark:text-red-300" },
-  fumble: { label: "大失败", emoji: "⚫", textClass: "text-muted" },
+  critical: { label: "大成功", emoji: "🟢", textClass: "text-emerald-600 dark:text-emerald-300", glow: "rgba(16, 185, 129, 0.6)" },
+  extreme: { label: "极难成功", emoji: "🔵", textClass: "text-blue-600 dark:text-blue-300", glow: "rgba(59, 130, 246, 0.6)" },
+  hard: { label: "困难成功", emoji: "🟦", textClass: "text-sky-600 dark:text-sky-300", glow: "rgba(14, 165, 233, 0.6)" },
+  success: { label: "成功", emoji: "⚪", textClass: "text-foreground", glow: "rgba(148, 163, 184, 0.5)" },
+  fail: { label: "失败", emoji: "🔴", textClass: "text-red-600 dark:text-red-300", glow: "rgba(239, 68, 68, 0.6)" },
+  fumble: { label: "大失败", emoji: "⚫", textClass: "text-muted", glow: "rgba(153, 27, 27, 0.75)" },
 };

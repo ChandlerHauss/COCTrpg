@@ -182,7 +182,7 @@ export default function DicePanel({
                     type="button"
                     onClick={() => quickRoll(false)}
                     disabled={!activeSkill || !onSend}
-                    className="flex-1 rounded-lg bg-accent px-2 py-1.5 text-xs font-medium text-accent-foreground transition-all duration-300 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex-1 rounded-lg bg-accent px-2 py-1.5 text-xs font-medium text-accent-foreground transition-all duration-300 hover:-translate-y-0.5 hover:brightness-90 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     1d100
                   </button>
@@ -190,7 +190,7 @@ export default function DicePanel({
                     type="button"
                     onClick={() => quickRoll(true)}
                     disabled={!activeSkill || !onSend}
-                    className="flex-1 rounded-lg bg-foreground/10 px-2 py-1.5 text-xs font-medium text-foreground transition-all duration-300 hover:bg-foreground/15 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex-1 rounded-lg bg-foreground/10 px-2 py-1.5 text-xs font-medium text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:bg-foreground/20 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     暗骰
                   </button>
