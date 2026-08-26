@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import LiveRoom from "@/components/room/LiveRoom";
 import JoinRoomDialog from "@/components/lobby/JoinRoomDialog";
-import type { Room, RoomMember } from "@/lib/types";
+import type { CharacterCard, Room, RoomMember, Skill } from "@/lib/types";
 
 export default async function RoomPage({
   params,
@@ -26,7 +26,7 @@ export default async function RoomPage({
   // 非成员 → 展示加入提示（预填房间号，密码在加入弹层输入）
   const { data: myMembership } = await supabase
     .from("room_members")
-    .select("role")
+    .select("role, active_character_id")
     .eq("room_id", id)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -90,5 +90,28 @@ export default async function RoomPage({
     bgOpacity: Number(roomRow.bg_opacity),
   };
 
-  return <LiveRoom room={room} members={members} currentUserId={user.id} />;
+  // 我的最小人物卡（骰子系统所需）+ 本房活跃角色
+  const { data: characterRows } = await supabase
+    .from("characters")
+    .select("id, name, skills")
+    .eq("owner_id", user.id)
+    .order("created_at", { ascending: true });
+
+  const characters: CharacterCard[] = (characterRows ?? []).map((c) => ({
+    id: c.id,
+    name: c.name,
+    skills: Array.isArray(c.skills) ? (c.skills as Skill[]) : [],
+  }));
+
+  const activeCharacterId = myMembership.active_character_id ?? null;
+
+  return (
+    <LiveRoom
+      room={room}
+      members={members}
+      currentUserId={user.id}
+      characters={characters}
+      activeCharacterId={activeCharacterId}
+    />
+  );
 }

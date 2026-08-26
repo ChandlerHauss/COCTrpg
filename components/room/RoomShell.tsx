@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import type { ConnectionStatus, Message, Room, RoomMember } from "@/lib/types";
+import type {
+  CharacterCard,
+  ConnectionStatus,
+  Message,
+  Room,
+  RoomMember,
+  Skill,
+} from "@/lib/types";
 import MemberSidebar from "./MemberSidebar";
 import ChatLog from "./ChatLog";
 import DicePanel from "./DicePanel";
@@ -15,17 +22,28 @@ export default function RoomShell({
   onSend,
   onlineUserIds,
   connectionStatus,
+  isKp = false,
+  characters = [],
+  activeCharacterId = null,
+  onSelectCharacter,
+  onCreateCharacter,
 }: {
   room: Room;
   members: RoomMember[];
   currentUserId: string;
   messages?: Message[];
-  onSend?: (content: string) => void;
+  onSend?: (content: string) => Promise<string | null>;
   onlineUserIds?: Set<string>;
   connectionStatus?: ConnectionStatus;
+  isKp?: boolean;
+  characters?: CharacterCard[];
+  activeCharacterId?: string | null;
+  onSelectCharacter?: (id: string) => Promise<void>;
+  onCreateCharacter?: (name: string, skills: Skill[]) => Promise<string | null>;
 }) {
   const [bgMode, setBgMode] = useState<BgMode>("room");
-  const [kpView, setKpView] = useState(false);
+  // KP 默认开「KP 视角」看到暗骰；PL 恒为 PL 视角
+  const [kpView, setKpView] = useState(isKp);
 
   return (
     <div className="h-dvh w-full overflow-x-auto text-foreground">
@@ -51,7 +69,12 @@ export default function RoomShell({
           setBgMode={setBgMode}
           kpView={kpView}
           setKpView={setKpView}
-          currentCharacter={null}
+          isKp={isKp}
+          characters={characters}
+          activeCharacterId={activeCharacterId}
+          onSelectCharacter={onSelectCharacter}
+          onCreateCharacter={onCreateCharacter}
+          onSend={onSend}
         />
       </div>
     </div>

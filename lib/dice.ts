@@ -1,4 +1,43 @@
-import type { RollLevel } from "./types";
+import type { RollLevel, Skill } from "./types";
+
+/** 掷一颗 d100（1-100） */
+export function rollD100(): number {
+  return Math.floor(Math.random() * 100) + 1;
+}
+
+/** 解析 /r /rh 指令的结果；非骰子指令返回 null */
+export type ParsedRoll =
+  | { kind: "skill"; skillName: string; hidden: boolean } // /r 侦查、/rh 侦查
+  | { kind: "target"; target: number; hidden: boolean } // /r 50、/rh 50
+  | { kind: "raw"; hidden: boolean }; // /r 1d100
+
+export function parseDiceCommand(input: string): ParsedRoll | null {
+  const s = input.trim();
+  let hidden = false;
+  let rest = "";
+  if (s.startsWith("/rh")) {
+    hidden = true;
+    rest = s.slice(3).trim();
+  } else if (s.startsWith("/r")) {
+    rest = s.slice(2).trim();
+  } else {
+    return null;
+  }
+  if (!rest) return null;
+  if (/^1d100$/i.test(rest)) return { kind: "raw", hidden };
+  if (/^\d+$/.test(rest)) {
+    const t = Number(rest);
+    return t >= 1 && t <= 100 ? { kind: "target", target: t, hidden } : null;
+  }
+  return { kind: "skill", skillName: rest, hidden };
+}
+
+/** 在技能列表中按名称查值（大小写不敏感），找不到返回 null */
+export function findSkillValue(skills: Skill[], name: string): number | null {
+  const n = name.trim().toLowerCase();
+  const found = skills.find((s) => s.name.trim().toLowerCase() === n);
+  return found ? found.value : null;
+}
 
 /**
  * COC 7 版骰子判定（固定规则，不可改）：

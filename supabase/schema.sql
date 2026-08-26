@@ -116,3 +116,41 @@ alter publication supabase_realtime add table public.messages;
 
 -- 8. 通知 PostgREST 刷新 schema cache（避免 "Could not find the table" 间歇报错）
 notify pgrst, 'reload schema';
+
+-- =====================================================================
+-- Phase 4 骰子系统（增量 DDL，老项目单独执行；新项目随上面整段一起跑）
+-- =====================================================================
+
+-- 9. characters：最小人物卡（角色名 + 技能 jsonb）
+create table if not exists public.characters (
+  id         uuid primary key default gen_random_uuid(),
+  owner_id   uuid not null references public.profiles(id) on delete cascade,
+  name       text not null,
+  skills     jsonb not null default '[]',   -- [{name, value, isBase}]
+  created_at timestamptz not null default now()
+);
+create index if not exists characters_owner_idx on public.characters(owner_id);
+
+alter table public.characters enable row level security;
+
+create policy "characters_select_all" on public.characters for select using (true);
+create policy "characters_insert_own" on public.characters for insert with check (auth.uid() = owner_id);
+create policy "characters_update_own" on public.characters for update using (auth.uid() = owner_id);
+create policy "characters_delete_own" on public.characters for delete using (auth.uid() = owner_id);
+
+-- 10. room_members 增加「本房活跃角色」+ 补更新策略（此前无 update 策略）
+alter table public.room_members
+  add column if not exists active_character_id uuid references public.characters(id) on delete set null;
+
+create policy "room_members_update_own" on public.room_members
+  for update using (auth.uid() = user_id);
+
+-- 11. messages 增加骰子列（匹配 Message 类型的 dice 字段）
+alter table public.messages
+  add column if not exists roll_label  text,
+  add column if not exists roll_result int,
+  add column if not exists roll_target int,
+  add column if not exists roll_level  text,
+  add column if not exists is_hidden    boolean not null default false;
+
+notify pgrst, 'reload schema';

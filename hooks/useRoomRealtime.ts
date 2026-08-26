@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { ConnectionStatus, Message, Role } from "@/lib/types";
+import type { ConnectionStatus, Message, Role, Skill } from "@/lib/types";
+import { findSkillValue, judgeRoll, parseDiceCommand, rollD100 } from "@/lib/dice";
 
 type MessageRow = {
   id: string;
@@ -12,6 +13,11 @@ type MessageRow = {
   sender_role: Message["senderRole"] | null;
   sender_avatar: string | null;
   created_at: string;
+  roll_label: string | null;
+  roll_result: number | null;
+  roll_target: number | null;
+  roll_level: Message["rollLevel"] | null;
+  is_hidden: boolean | null;
 };
 
 /** created_at(ISO) → 本地 HH:MM */
@@ -31,6 +37,11 @@ function rowToMessage(row: MessageRow): Message {
     senderAvatar: row.sender_avatar,
     content: row.content,
     timestamp: formatClock(row.created_at),
+    rollLabel: row.roll_label ?? undefined,
+    rollResult: row.roll_result ?? undefined,
+    rollTarget: row.roll_target ?? undefined,
+    rollLevel: row.roll_level ?? undefined,
+    isHidden: row.is_hidden ?? undefined,
   };
 }
 
@@ -44,10 +55,12 @@ export function useRoomRealtime({
   roomId,
   currentUser,
   currentRole,
+  activeSkills,
 }: {
   roomId: string;
   currentUser: { id: string; username: string; avatarUrl: string | null };
   currentRole: Role;
+  activeSkills: Skill[];
 }) {
   const supabase = useMemo(() => createClient(), []);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -121,20 +134,79 @@ export function useRoomRealtime({
     };
   }, [supabase, roomId, currentUser.id, currentUser.username, currentRole]);
 
+  /**
+   * 发送一条输入：自动识别骰子指令（/r /rh）与普通聊天。
+   * 返回 null 表示成功；返回 string 表示错误信息（由输入框内联展示）。
+   */
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string): Promise<string | null> => {
       const trimmed = content.trim();
-      if (!trimmed) return;
-      const { error } = await supabase.from("messages").insert({
+      if (!trimmed) return null;
+
+      const base = {
         room_id: roomId,
         sender_id: currentUser.id,
-        type: "chat",
-        content: trimmed,
         sender_name: currentUser.username,
         sender_role: currentRole,
         sender_avatar: currentUser.avatarUrl,
-      });
-      if (error) console.error("发送消息失败", error.message);
+      };
+
+      const parsed = parseDiceCommand(trimmed);
+
+      let payload: Record<string, unknown>;
+      if (parsed === null) {
+        // 普通聊天
+        payload = { ...base, type: "chat", content: trimmed };
+      } else if (parsed.kind === "raw") {
+        // /r 1d100：纯点数，无目标无判定
+        payload = {
+          ...base,
+          type: "dice",
+          content: "",
+          roll_label: "1d100",
+          roll_result: rollD100(),
+          is_hidden: parsed.hidden,
+        };
+      } else if (parsed.kind === "target") {
+        // /r 50：固定目标检定
+        const result = rollD100();
+        payload = {
+          ...base,
+          type: "dice",
+          content: "",
+          roll_label: "检定",
+          roll_result: result,
+          roll_target: parsed.target,
+          roll_level: judgeRoll(result, parsed.target),
+          is_hidden: parsed.hidden,
+        };
+      } else {
+        // /r 侦查：从当前活跃角色技能表取值
+        const value = findSkillValue(activeSkills, parsed.skillName);
+        if (value === null) {
+          return activeSkills.length === 0
+            ? "请先在右侧「我的角色」创建并选择角色"
+            : `角色没有技能「${parsed.skillName}」`;
+        }
+        const result = rollD100();
+        payload = {
+          ...base,
+          type: "dice",
+          content: "",
+          roll_label: parsed.skillName,
+          roll_result: result,
+          roll_target: value,
+          roll_level: judgeRoll(result, value),
+          is_hidden: parsed.hidden,
+        };
+      }
+
+      const { error } = await supabase.from("messages").insert(payload);
+      if (error) {
+        console.error("发送消息失败", error.message);
+        return "发送失败，请重试";
+      }
+      return null;
     },
     [
       supabase,
@@ -143,6 +215,7 @@ export function useRoomRealtime({
       currentUser.username,
       currentUser.avatarUrl,
       currentRole,
+      activeSkills,
     ]
   );
 

@@ -2,22 +2,25 @@
 
 import { useState } from "react";
 
-const COMMANDS = ["/r 侦查", "/r 1d6+db", "/rh 潜行", "/r 1d100/2"];
+const COMMANDS = ["/r 侦查", "/r 50", "/rh 潜行", "/r 1d100"];
 
 export default function ChatInput({
   onSend,
   disabled = false,
 }: {
-  onSend?: (content: string) => void;
+  onSend?: (content: string) => Promise<string | null>;
   disabled?: boolean;
 }) {
   const [text, setText] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  function submit() {
+  async function submit() {
     const trimmed = text.trim();
     if (!trimmed || !onSend) return;
-    onSend(trimmed);
-    setText("");
+    setError(null);
+    const err = await onSend(trimmed);
+    if (err) setError(err);
+    else setText("");
   }
 
   return (
@@ -56,6 +59,7 @@ export default function ChatInput({
           发送
         </button>
       </div>
+      {error && <p className="mt-1.5 text-[11px] text-red-600 dark:text-red-300">{error}</p>}
     </div>
   );
 }

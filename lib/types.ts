@@ -20,6 +20,13 @@ export interface Skill {
   isBase: boolean;
 }
 
+/** 最小人物卡：仅骰子系统所需（角色名 + 技能列表） */
+export interface CharacterCard {
+  id: string;
+  name: string;
+  skills: Skill[];
+}
+
 export interface Character {
   id: string;
   name: string;

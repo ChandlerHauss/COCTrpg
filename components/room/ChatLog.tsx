@@ -36,7 +36,7 @@ export default function ChatLog({
   revealHidden: boolean;
   bgMode: BgMode;
   bgOpacity: number;
-  onSend?: (content: string) => void;
+  onSend?: (content: string) => Promise<string | null>;
   connectionStatus?: ConnectionStatus;
 }) {
   const [scrolled, setScrolled] = useState(false);
