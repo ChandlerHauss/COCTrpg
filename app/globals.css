@@ -176,12 +176,12 @@ body {
 .dice-anim-enter-glow {
   animation:
     dice-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both,
-    dice-glow 1.5s ease-out both;
+    dice-glow 1.5s ease-out 300ms both;
 }
 .dice-anim-enter-glow-strong {
   animation:
     dice-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both,
-    dice-glow-strong 1.5s ease-out both;
+    dice-glow-strong 1.5s ease-out 300ms both;
 }
 .dice-anim-breathe {
   display: inline-block;

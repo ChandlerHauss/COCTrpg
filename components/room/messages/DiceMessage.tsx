@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import type { Message } from "@/lib/types";
 import { ROLL_LEVEL_META } from "@/lib/dice";
@@ -15,6 +18,17 @@ export default function DiceMessage({
   const hidden = message.isHidden === true;
   const meta = message.rollLevel ? ROLL_LEVEL_META[message.rollLevel] : null;
   const isStrong = message.rollLevel === "critical" || message.rollLevel === "fumble";
+
+  // 点击掷骰后先显示「滚动中」，300ms 后揭晓点数/判定/颜色
+  const [revealed, setRevealed] = useState(false);
+  useEffect(() => {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      setRevealed(true);
+      return;
+    }
+    const t = setTimeout(() => setRevealed(true), 300);
+    return () => clearTimeout(t);
+  }, []);
 
   // PL 视角下的暗骰：只显示占位提示
   if (hidden && !revealHidden) {
@@ -54,21 +68,29 @@ export default function DiceMessage({
           <div className="flex items-center gap-2">
             <span className="text-lg">🎲</span>
             <span className="font-medium">{message.rollLabel ?? "掷骰"}</span>
-            {message.rollTarget != null && message.rollResult != null ? (
-              <span className="text-muted">
-                <CountUp value={message.rollResult} />
-                <span className="opacity-70"> / {message.rollTarget}</span>
-              </span>
-            ) : (
-              message.rollResult != null && (
-                <span className="text-xl font-bold">
+            {revealed ? (
+              message.rollTarget != null && message.rollResult != null ? (
+                <span className="text-muted">
                   <CountUp value={message.rollResult} />
+                  <span className="opacity-70"> / {message.rollTarget}</span>
                 </span>
+              ) : (
+                message.rollResult != null && (
+                  <span className="text-xl font-bold">
+                    <CountUp value={message.rollResult} />
+                  </span>
+                )
               )
+            ) : (
+              <span className="dice-anim-breathe text-muted">…</span>
             )}
           </div>
           {meta && (
-            <div className={`mt-1 text-sm font-semibold ${meta.textClass}`}>
+            <div
+              className={`mt-1 text-sm font-semibold transition-opacity duration-300 ${
+                revealed ? "opacity-100" : "opacity-0"
+              } ${meta.textClass}`}
+            >
               {meta.emoji} {meta.label}
             </div>
           )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ConnectionStatus, Message, Room } from "@/lib/types";
 import Background, { type BgMode } from "./Background";
 import MessageRenderer from "./messages/MessageRenderer";
@@ -40,8 +40,15 @@ export default function ChatLog({
   connectionStatus?: ConnectionStatus;
 }) {
   const [scrolled, setScrolled] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const status = STATUS_LABEL[roomStatus] ?? STATUS_LABEL.running;
   const conn = CONN_DOT[connectionStatus] ?? CONN_DOT.connected;
+
+  // 新消息出现时立即滚到底部
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages]);
 
   return (
     <main className="glass relative flex h-full min-w-0 flex-col overflow-hidden rounded-3xl">
@@ -71,6 +78,7 @@ export default function ChatLog({
 
       {/* 消息流（内容优先，居中阅读宽度） */}
       <div
+        ref={scrollRef}
         className="relative z-10 flex-1 overflow-y-auto px-4 py-4"
         onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}
       >
