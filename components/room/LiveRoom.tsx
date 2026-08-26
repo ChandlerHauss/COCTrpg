@@ -3,6 +3,7 @@
 import type { Character, Room, RoomMember } from "@/lib/types";
 import { useRoomRealtime } from "@/hooks/useRoomRealtime";
 import { useCharacters } from "@/hooks/useCharacters";
+import { useBackground } from "@/hooks/useBackground";
 import RoomShell from "./RoomShell";
 
 /** 真实房间：把 Realtime + 人物卡 hook 的结果接到纯展示的 RoomShell */
@@ -53,6 +54,27 @@ export default function LiveRoom({
     activeSkills: activeCharacter?.skills ?? [],
   });
 
+  const {
+    roomBg,
+    personalBg,
+    uploading: bgUploading,
+    setRoomBgOpacity,
+    setRoomBgBlur,
+    uploadRoomBackground,
+    clearRoomBackground,
+    uploadPersonalBackground,
+    clearPersonalBackground,
+  } = useBackground({
+    roomId: room.id,
+    userId: currentUserId,
+    initialRoomBg: {
+      custom: room.bgCustom,
+      opacity: room.bgOpacity,
+      blur: room.bgBlur,
+    },
+    initialPersonalBg: me?.bgPersonal ?? null,
+  });
+
   return (
     <RoomShell
       room={room}
@@ -70,6 +92,15 @@ export default function LiveRoom({
       saveCharacter={saveCharacter}
       deleteCharacter={deleteCharacter}
       uploadAvatar={uploadAvatar}
+      roomBg={roomBg}
+      personalBg={personalBg}
+      bgUploading={bgUploading}
+      onSetRoomBgOpacity={setRoomBgOpacity}
+      onSetRoomBgBlur={setRoomBgBlur}
+      onUploadRoomBg={uploadRoomBackground}
+      onClearRoomBg={clearRoomBackground}
+      onUploadPersonalBg={uploadPersonalBackground}
+      onClearPersonalBg={clearPersonalBackground}
     />
   );
 }

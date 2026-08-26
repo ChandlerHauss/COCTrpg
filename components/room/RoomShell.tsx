@@ -9,6 +9,7 @@ import type {
   Room,
   RoomMember,
 } from "@/lib/types";
+import type { RoomBg } from "@/hooks/useBackground";
 import MemberSidebar from "./MemberSidebar";
 import ChatLog from "./ChatLog";
 import DicePanel from "./DicePanel";
@@ -31,6 +32,15 @@ export default function RoomShell({
   saveCharacter,
   deleteCharacter,
   uploadAvatar,
+  roomBg,
+  personalBg,
+  bgUploading,
+  onSetRoomBgOpacity,
+  onSetRoomBgBlur,
+  onUploadRoomBg,
+  onClearRoomBg,
+  onUploadPersonalBg,
+  onClearPersonalBg,
 }: {
   room: Room;
   members: RoomMember[];
@@ -47,6 +57,15 @@ export default function RoomShell({
   saveCharacter?: (input: CharacterInput, id?: string) => Promise<string | null>;
   deleteCharacter?: (id: string) => Promise<void>;
   uploadAvatar?: (file: File) => Promise<string | null>;
+  roomBg?: RoomBg;
+  personalBg?: string | null;
+  bgUploading?: null | "room" | "personal";
+  onSetRoomBgOpacity?: (v: number) => void;
+  onSetRoomBgBlur?: (v: number) => void;
+  onUploadRoomBg?: (file: File) => Promise<string | null>;
+  onClearRoomBg?: () => void;
+  onUploadPersonalBg?: (file: File) => Promise<string | null>;
+  onClearPersonalBg?: () => void;
 }) {
   const [bgMode, setBgMode] = useState<BgMode>("room");
   // KP 默认开「KP 视角」看到暗骰；PL 恒为 PL 视角
@@ -59,6 +78,13 @@ export default function RoomShell({
 
   const openEditor = (character: Character | null, mode: "pc" | "npc") =>
     setEditor({ character, mode });
+
+  // 演示页未注入实时背景时，回退到 room 服务端初值
+  const bg: RoomBg = roomBg ?? {
+    custom: room.bgCustom,
+    opacity: room.bgOpacity,
+    blur: room.bgBlur,
+  };
 
   return (
     <div className="h-dvh w-full overflow-x-auto text-foreground">
@@ -80,7 +106,10 @@ export default function RoomShell({
           messages={messages}
           revealHidden={kpView}
           bgMode={bgMode}
-          bgOpacity={room.bgOpacity}
+          bgOpacity={bg.opacity}
+          bgCustom={bg.custom}
+          bgBlur={bg.blur}
+          personalBg={personalBg ?? null}
           onSend={onSend}
           connectionStatus={connectionStatus}
         />
@@ -90,6 +119,15 @@ export default function RoomShell({
           kpView={kpView}
           setKpView={setKpView}
           isKp={isKp}
+          bgOpacity={bg.opacity}
+          bgBlur={bg.blur}
+          bgUploading={bgUploading}
+          onSetBgOpacity={onSetRoomBgOpacity}
+          onSetBgBlur={onSetRoomBgBlur}
+          onUploadRoomBg={onUploadRoomBg}
+          onClearRoomBg={onClearRoomBg}
+          onUploadPersonalBg={onUploadPersonalBg}
+          onClearPersonalBg={onClearPersonalBg}
           characters={characters}
           activeCharacterId={activeCharacterId}
           onSelectCharacter={onSelectCharacter}

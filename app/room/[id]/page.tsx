@@ -19,7 +19,7 @@ export default async function RoomPage({
 
   const { data: roomRow } = await supabase
     .from("rooms")
-    .select("id, code, name, status, max_players, host_id, bg_custom, bg_opacity")
+    .select("id, code, name, status, max_players, host_id, bg_custom, bg_opacity, bg_blur")
     .eq("id", id)
     .maybeSingle();
   if (!roomRow) notFound();
@@ -51,7 +51,7 @@ export default async function RoomPage({
   // 拉成员 + 资料（二次查询，避免依赖关系名）
   const { data: memberRows } = await supabase
     .from("room_members")
-    .select("role, user_id")
+    .select("role, user_id, bg_personal")
     .eq("room_id", id)
     .order("joined_at", { ascending: true });
 
@@ -70,7 +70,7 @@ export default async function RoomPage({
       userId: m.user_id,
       role: m.role,
       avatarUrl: p?.avatar_url ?? null,
-      bgPersonal: null,
+      bgPersonal: m.bg_personal ?? null,
       user: {
         id: m.user_id,
         username: p?.username ?? "未知",
@@ -89,6 +89,7 @@ export default async function RoomPage({
     hostId: roomRow.host_id,
     bgCustom: roomRow.bg_custom,
     bgOpacity: Number(roomRow.bg_opacity),
+    bgBlur: Number(roomRow.bg_blur),
   };
 
   // 我的 PC（完整 COC 7 字段）+ 房间 NPC + 本房活跃角色

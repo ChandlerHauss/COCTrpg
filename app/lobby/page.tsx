@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import CreateRoomDialog from "@/components/lobby/CreateRoomDialog";
 import JoinRoomDialog from "@/components/lobby/JoinRoomDialog";
 import SignOutButton from "@/components/lobby/SignOutButton";
+import Avatar from "@/components/room/messages/Avatar";
 
 const STATUS_META: Record<string, { label: string; cls: string }> = {
   waiting: { label: "等待中", cls: "bg-amber-500/15 text-amber-600 dark:text-amber-300" },
@@ -32,7 +33,7 @@ export default async function LobbyPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("username")
+    .select("username, avatar_url")
     .eq("id", user.id)
     .single();
 
@@ -54,9 +55,18 @@ export default async function LobbyPage() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
       <header className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">跑团大厅</h1>
-          <p className="mt-1 text-sm text-muted">你好，{profile?.username ?? "调查员"}</p>
+        <div className="flex items-center gap-3">
+          <Link href="/settings" title="用户设置" aria-label="用户设置">
+            <Avatar
+              url={profile?.avatar_url ?? null}
+              username={profile?.username ?? "调查员"}
+              size="md"
+            />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">跑团大厅</h1>
+            <p className="mt-1 text-sm text-muted">你好，{profile?.username ?? "调查员"}</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <CreateRoomDialog />

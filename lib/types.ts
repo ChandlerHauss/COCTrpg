@@ -74,6 +74,7 @@ export interface Room {
   hostId: string;
   bgCustom: string | null;
   bgOpacity: number;
+  bgBlur: number;
 }
 
 export interface Message {

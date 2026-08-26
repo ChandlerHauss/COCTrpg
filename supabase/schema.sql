@@ -213,4 +213,37 @@ create policy "avatars_delete_own" on storage.objects
     and auth.uid()::text = (storage.foldername(name))[1]
   );
 
+-- 16. 背景图存储桶（房间背景 + 个人背景）：公开读、按 user_id 目录写
+insert into storage.buckets (id, name, public)
+  values ('backgrounds', 'backgrounds', true)
+  on conflict (id) do nothing;
+
+create policy "backgrounds_public_read" on storage.objects
+  for select using (bucket_id = 'backgrounds');
+
+create policy "backgrounds_insert_own" on storage.objects
+  for insert with check (
+    bucket_id = 'backgrounds'
+    and auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+create policy "backgrounds_update_own" on storage.objects
+  for update using (
+    bucket_id = 'backgrounds'
+    and auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+create policy "backgrounds_delete_own" on storage.objects
+  for delete using (
+    bucket_id = 'backgrounds'
+    and auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+-- 17. rooms 增加背景模糊度；room_members 增加个人背景 URL
+alter table public.rooms
+  add column if not exists bg_blur numeric not null default 0;
+
+alter table public.room_members
+  add column if not exists bg_personal text;
+
 notify pgrst, 'reload schema';

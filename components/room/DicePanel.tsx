@@ -4,12 +4,24 @@ import { useState } from "react";
 import type { Character } from "@/lib/types";
 import type { BgMode } from "./Background";
 
+const uploadBtnCls =
+  "cursor-pointer rounded-lg bg-foreground/5 px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors duration-300 hover:bg-foreground/10";
+
 export default function DicePanel({
   bgMode,
   setBgMode,
   kpView,
   setKpView,
   isKp,
+  bgOpacity,
+  bgBlur,
+  bgUploading,
+  onSetBgOpacity,
+  onSetBgBlur,
+  onUploadRoomBg,
+  onClearRoomBg,
+  onUploadPersonalBg,
+  onClearPersonalBg,
   characters,
   activeCharacterId,
   onSelectCharacter,
@@ -21,6 +33,15 @@ export default function DicePanel({
   kpView: boolean;
   setKpView: (v: boolean) => void;
   isKp: boolean;
+  bgOpacity?: number;
+  bgBlur?: number;
+  bgUploading?: null | "room" | "personal";
+  onSetBgOpacity?: (v: number) => void;
+  onSetBgBlur?: (v: number) => void;
+  onUploadRoomBg?: (file: File) => Promise<string | null>;
+  onClearRoomBg?: () => void;
+  onUploadPersonalBg?: (file: File) => Promise<string | null>;
+  onClearPersonalBg?: () => void;
   characters: Character[];
   activeCharacterId: string | null;
   onSelectCharacter?: (id: string) => Promise<void>;
@@ -28,6 +49,7 @@ export default function DicePanel({
   onSend?: (input: string) => Promise<string | null>;
 }) {
   const [activeSkill, setActiveSkill] = useState<string | null>(null);
+  const [bgError, setBgError] = useState<string | null>(null);
 
   const activeCharacter = characters.find((c) => c.id === activeCharacterId) ?? null;
   const skills = activeCharacter?.skills ?? [];
@@ -35,6 +57,24 @@ export default function DicePanel({
   function quickRoll(hidden: boolean) {
     if (!activeSkill || !onSend) return;
     onSend(`${hidden ? "/rh" : "/r"} ${activeSkill}`);
+  }
+
+  async function onRoomFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !onUploadRoomBg) return;
+    setBgError(null);
+    const err = await onUploadRoomBg(file);
+    if (err) setBgError(err);
+    e.target.value = "";
+  }
+
+  async function onPersonalFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !onUploadPersonalBg) return;
+    setBgError(null);
+    const err = await onUploadPersonalBg(file);
+    if (err) setBgError(err);
+    e.target.value = "";
   }
 
   return (
@@ -69,7 +109,7 @@ export default function DicePanel({
         </section>
       )}
 
-      {/* 背景切换 */}
+      {/* 背景切换 + 上传/调节 */}
       <section>
         <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">聊天背景</h3>
         <div className="flex rounded-xl bg-foreground/5 p-0.5 text-xs">
@@ -92,7 +132,97 @@ export default function DicePanel({
             </button>
           ))}
         </div>
-        <p className="mt-1.5 text-[10px] text-muted">个人背景覆盖房间背景，仅本机可见，可切回</p>
+
+        {bgMode === "room" ? (
+          isKp && onUploadRoomBg ? (
+            <div className="mt-2 space-y-2.5">
+              <div className="flex items-center gap-2">
+                <label className={uploadBtnCls}>
+                  {bgUploading === "room" ? "上传中…" : "上传背景图"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={onRoomFile}
+                  />
+                </label>
+                {onClearRoomBg && (
+                  <button
+                    type="button"
+                    onClick={onClearRoomBg}
+                    className="text-xs text-muted hover:text-foreground"
+                  >
+                    移除
+                  </button>
+                )}
+              </div>
+              {onSetBgOpacity && (
+                <label className="block">
+                  <div className="flex items-center justify-between text-[10px] text-muted">
+                    <span>透明度</span>
+                    <span className="font-mono">{Math.round((bgOpacity ?? 0) * 100)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    value={bgOpacity ?? 0}
+                    onChange={(e) => onSetBgOpacity(Number(e.target.value))}
+                    className="w-full accent-[var(--accent)]"
+                  />
+                </label>
+              )}
+              {onSetBgBlur && (
+                <label className="block">
+                  <div className="flex items-center justify-between text-[10px] text-muted">
+                    <span>模糊度</span>
+                    <span className="font-mono">{bgBlur ?? 0}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={20}
+                    step={1}
+                    value={bgBlur ?? 0}
+                    onChange={(e) => onSetBgBlur(Number(e.target.value))}
+                    className="w-full accent-[var(--accent)]"
+                  />
+                </label>
+              )}
+            </div>
+          ) : (
+            <p className="mt-1.5 text-[10px] text-muted">房间背景由 KP 设置</p>
+          )
+        ) : (
+          <div className="mt-2 space-y-2">
+            {onUploadPersonalBg ? (
+              <div className="flex items-center gap-2">
+                <label className={uploadBtnCls}>
+                  {bgUploading === "personal" ? "上传中…" : "上传个人背景"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={onPersonalFile}
+                  />
+                </label>
+                {onClearPersonalBg && (
+                  <button
+                    type="button"
+                    onClick={onClearPersonalBg}
+                    className="text-xs text-muted hover:text-foreground"
+                  >
+                    移除
+                  </button>
+                )}
+              </div>
+            ) : null}
+            <p className="text-[10px] text-muted">个人背景覆盖房间背景，仅自己可见，可切回</p>
+          </div>
+        )}
+
+        {bgError && <p className="mt-1.5 text-[10px] text-red-600 dark:text-red-300">{bgError}</p>}
       </section>
 
       {/* 快捷指令 */}

@@ -27,6 +27,9 @@ export default function ChatLog({
   revealHidden,
   bgMode,
   bgOpacity,
+  bgCustom,
+  bgBlur,
+  personalBg,
   onSend,
   connectionStatus = "connected",
 }: {
@@ -36,6 +39,9 @@ export default function ChatLog({
   revealHidden: boolean;
   bgMode: BgMode;
   bgOpacity: number;
+  bgCustom?: string | null;
+  bgBlur?: number;
+  personalBg?: string | null;
   onSend?: (content: string) => Promise<string | null>;
   connectionStatus?: ConnectionStatus;
 }) {
@@ -52,7 +58,13 @@ export default function ChatLog({
 
   return (
     <main className="glass relative flex h-full min-w-0 flex-col overflow-hidden rounded-3xl">
-      <Background mode={bgMode} bgOpacity={bgOpacity} />
+      <Background
+        mode={bgMode}
+        bgOpacity={bgOpacity}
+        bgCustom={bgCustom}
+        bgBlur={bgBlur}
+        personalBg={personalBg}
+      />
 
       {/* 顶部液态导航栏：滚动时收缩 + 增强磨砂 */}
       <header

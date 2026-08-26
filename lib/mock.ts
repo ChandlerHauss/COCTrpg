@@ -110,6 +110,7 @@ export const room: Room = {
   hostId: "u-kp",
   bgCustom: null, // 真实数据为图片 URL，Background 组件内用渐变模拟
   bgOpacity: 0.15,
+  bgBlur: 0,
 };
 
 function senderAvatarFor(userId: string): string | null {

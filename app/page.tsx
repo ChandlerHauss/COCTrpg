@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import Avatar from "@/components/room/messages/Avatar";
 
 // 首页需按请求读取登录态（而非静态预渲染）
 export const dynamic = "force-dynamic";
@@ -11,6 +12,7 @@ export default async function Home() {
 
   let user: { id: string } | null = null;
   let username: string | null = null;
+  let avatarUrl: string | null = null;
 
   if (configured) {
     try {
@@ -20,10 +22,11 @@ export default async function Home() {
       if (user) {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("username")
+          .select("username, avatar_url")
           .eq("id", user.id)
           .single();
         username = profile?.username ?? null;
+        avatarUrl = profile?.avatar_url ?? null;
       }
     } catch {
       // 网络异常或配置有误时降级为未登录视图
@@ -40,13 +43,24 @@ export default async function Home() {
 
         {user ? (
           <>
-            <p className="mt-4 text-sm text-foreground">欢迎回来，{username ?? "调查员"}</p>
-            <Link
-              href="/lobby"
-              className="mt-6 inline-block rounded-2xl bg-accent px-6 py-3 font-medium text-accent-foreground transition-all duration-300 ease-out hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
-            >
-              进入大厅
-            </Link>
+            <div className="mt-6 flex justify-center">
+              <Avatar url={avatarUrl} username={username ?? "调查员"} size="lg" />
+            </div>
+            <p className="mt-3 text-sm text-foreground">欢迎回来，{username ?? "调查员"}</p>
+            <div className="mt-6 flex items-center justify-center gap-3">
+              <Link
+                href="/lobby"
+                className="inline-block rounded-2xl bg-accent px-6 py-3 font-medium text-accent-foreground transition-all duration-300 ease-out hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+              >
+                进入大厅
+              </Link>
+              <Link
+                href="/settings"
+                className="glass inline-block rounded-2xl px-6 py-3 font-medium text-foreground transition-all duration-300 ease-out hover:bg-surface-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+              >
+                设置
+              </Link>
+            </div>
           </>
         ) : (
           <div className="mt-6 flex items-center justify-center gap-3">
