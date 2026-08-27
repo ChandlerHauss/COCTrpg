@@ -250,3 +250,28 @@ alter table public.room_members
   add column if not exists bg_personal text;
 
 notify pgrst, 'reload schema';
+
+-- =====================================================================
+-- Phase 7 房间成员实时列表（退出/加入实时刷新左侧成员栏，增量段只跑一次）
+-- =====================================================================
+
+-- 18. 开启 room_members 实时订阅（postgres_changes 必需；等价于 Dashboard → Database → Replication 勾选 room_members）
+alter publication supabase_realtime add table public.room_members;
+
+notify pgrst, 'reload schema';
+
+-- =====================================================================
+-- Phase 8 每人独立背景视角（房间/个人背景各自透明度与模糊度，增量段只跑一次）
+-- =====================================================================
+
+-- 19. room_members 增加本人视角背景字段（房间背景透明度/模糊度 + 个人背景透明度/模糊度）
+alter table public.room_members
+  add column if not exists bg_room_opacity     numeric not null default 0.15;
+alter table public.room_members
+  add column if not exists bg_room_blur        numeric not null default 0;
+alter table public.room_members
+  add column if not exists bg_personal_opacity numeric not null default 1;
+alter table public.room_members
+  add column if not exists bg_personal_blur    numeric not null default 0;
+
+notify pgrst, 'reload schema';

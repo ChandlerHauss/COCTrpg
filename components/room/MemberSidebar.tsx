@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Character, Room, RoomMember } from "@/lib/types";
 import { resolveAvatarUrl } from "@/lib/avatar";
 import Avatar from "./messages/Avatar";
+import LeaveRoomButton from "./LeaveRoomButton";
 
 const ROLE_LABEL: Record<string, { text: string; cls: string }> = {
   kp: { text: "KP", cls: "bg-amber-500/15 text-amber-600 dark:text-amber-300" },
@@ -77,6 +79,8 @@ export default function MemberSidebar({
   characters,
   onEdit,
   onDelete,
+  showRoomActions = false,
+  onOpenSettings,
 }: {
   room: Room;
   members: RoomMember[];
@@ -87,6 +91,8 @@ export default function MemberSidebar({
   characters: Character[];
   onEdit: (character: Character | null, mode: "pc" | "npc") => void;
   onDelete: (id: string) => void;
+  showRoomActions?: boolean;
+  onOpenSettings?: () => void;
 }) {
   const [tab, setTab] = useState<"members" | "characters">("members");
   const status = STATUS_LABEL[room.status] ?? STATUS_LABEL.running;
@@ -103,24 +109,47 @@ export default function MemberSidebar({
             {members.length} 人 · 上限 {room.maxPlayers}
           </span>
         </div>
+        {showRoomActions && (
+          <div className="mt-2 flex items-center gap-2">
+            <Link
+              href="/lobby"
+              className="glass rounded-xl px-3 py-1.5 text-xs text-muted transition-all duration-300 hover:text-foreground"
+            >
+              ← 返回
+            </Link>
+            {!isKp && <LeaveRoomButton roomId={room.id} />}
+          </div>
+        )}
       </div>
 
-      {/* Tab 切换（玻璃分段控件） */}
+      {/* Tab 切换（玻璃分段控件 + 设置按钮） */}
       <div className="border-b border-border p-2">
-        <div className="flex rounded-xl bg-foreground/5 p-0.5 text-xs">
-          {(["members", "characters"] as const).map((t) => (
+        <div className="flex items-center gap-1">
+          <div className="flex flex-1 rounded-xl bg-foreground/5 p-0.5 text-xs">
+            {(["members", "characters"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`flex-1 rounded-[10px] py-1.5 font-medium transition-all duration-300 ease-out ${
+                  tab === t
+                    ? "bg-surface-strong text-foreground shadow-sm"
+                    : "text-muted hover:text-foreground"
+                }`}
+              >
+                {t === "members" ? "成员" : "人物卡"}
+              </button>
+            ))}
+          </div>
+          {onOpenSettings && (
             <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`flex-1 rounded-[10px] py-1.5 font-medium transition-all duration-300 ease-out ${
-                tab === t
-                  ? "bg-surface-strong text-foreground shadow-sm"
-                  : "text-muted hover:text-foreground"
-              }`}
+              type="button"
+              onClick={onOpenSettings}
+              className="shrink-0 rounded-[10px] px-2 py-1.5 text-sm text-muted transition-colors duration-300 hover:bg-surface-strong hover:text-foreground"
+              title="房间设置"
             >
-              {t === "members" ? "成员" : "人物卡"}
+              ⚙
             </button>
-          ))}
+          )}
         </div>
       </div>
 

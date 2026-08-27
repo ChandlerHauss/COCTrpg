@@ -11,9 +11,11 @@ import CountUp from "./CountUp";
 export default function DiceMessage({
   message,
   revealHidden,
+  isMine,
 }: {
   message: Message;
   revealHidden: boolean;
+  isMine: boolean;
 }) {
   const hidden = message.isHidden === true;
   const meta = message.rollLevel ? ROLL_LEVEL_META[message.rollLevel] : null;
@@ -33,7 +35,7 @@ export default function DiceMessage({
   // PL 视角下的暗骰：只显示占位提示
   if (hidden && !revealHidden) {
     return (
-      <div className="flex items-start gap-2.5">
+      <div className={`flex items-start gap-2.5 ${isMine ? "flex-row-reverse" : ""}`}>
         <Avatar url={message.senderAvatar} username={message.senderName} size="sm" />
         <div className="glass dice-anim-enter relative rounded-2xl px-3.5 py-2.5 pl-5 text-sm text-muted">
           <span className="absolute left-0 top-0 h-full w-[3px] rounded-full bg-violet-500" />
@@ -44,10 +46,10 @@ export default function DiceMessage({
   }
 
   return (
-    <div className="flex items-start gap-2.5">
+    <div className={`flex items-start gap-2.5 ${isMine ? "flex-row-reverse" : ""}`}>
       <Avatar url={message.senderAvatar} username={message.senderName} size="sm" />
-      <div className="flex max-w-[80%] flex-col gap-1">
-        <div className="flex items-baseline gap-2">
+      <div className={`flex max-w-[80%] flex-col gap-1 ${isMine ? "items-end" : ""}`}>
+        <div className={`flex items-baseline gap-2 ${isMine ? "flex-row-reverse" : ""}`}>
           <span className="text-xs font-semibold text-foreground">{message.senderName}</span>
           <span className="text-[10px] text-muted">{message.timestamp}</span>
           {hidden && (
@@ -57,9 +59,9 @@ export default function DiceMessage({
           )}
         </div>
         <div
-          className={`glass relative rounded-2xl rounded-tl-md px-3.5 py-2.5 text-sm text-foreground ${
-            isStrong ? "dice-anim-enter-glow-strong" : "dice-anim-enter-glow"
-          }`}
+          className={`glass relative rounded-2xl px-3.5 py-2.5 text-sm text-foreground ${
+            isMine ? "rounded-tr-md" : "rounded-tl-md"
+          } ${isStrong ? "dice-anim-enter-glow-strong" : "dice-anim-enter-glow"}`}
           style={meta?.glow ? ({ "--dice-glow": meta.glow } as CSSProperties) : undefined}
         >
           {hidden && (
