@@ -138,6 +138,9 @@ create policy "characters_insert_own" on public.characters for insert with check
 create policy "characters_update_own" on public.characters for update using (auth.uid() = owner_id);
 create policy "characters_delete_own" on public.characters for delete using (auth.uid() = owner_id);
 
+-- 9.5 characters 加入实时发布（角色卡变更实时同步，此前遗漏）
+alter publication supabase_realtime add table public.characters;
+
 -- 10. room_members 增加「本房活跃角色」+ 补更新策略（此前无 update 策略）
 alter table public.room_members
   add column if not exists active_character_id uuid references public.characters(id) on delete set null;

@@ -17,11 +17,13 @@ export default async function RoomPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: roomRow } = await supabase
+  const { data: roomRow, error: roomError } = await supabase
     .from("rooms")
     .select("id, code, name, status, max_players, host_id, bg_custom, bg_opacity, bg_blur")
     .eq("id", id)
     .maybeSingle();
+  // 查询报错（如 schema 缺列）要显式抛出，避免被误判成「房间不存在」→ 404
+  if (roomError) throw roomError;
   if (!roomRow) notFound();
 
   // 非成员 → 展示加入提示（预填房间号，密码在加入弹层输入）
