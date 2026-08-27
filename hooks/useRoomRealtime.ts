@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { ConnectionStatus, Message, Role, Skill } from "@/lib/types";
+import type { ConnectionStatus, Message, Role, Skill, SpeakAs } from "@/lib/types";
 import { findSkillValue, judgeRoll, parseDiceCommand, rollD100 } from "@/lib/dice";
 
 type MessageRow = {
   id: string;
   type: Message["type"];
   content: string;
+  sender_id: string | null;
   sender_name: string;
   sender_role: Message["senderRole"] | null;
   sender_avatar: string | null;
@@ -35,6 +36,7 @@ function rowToMessage(row: MessageRow): Message {
     senderName: row.sender_name,
     senderRole: row.sender_role ?? undefined,
     senderAvatar: row.sender_avatar,
+    senderId: row.sender_id ?? null,
     content: row.content,
     timestamp: formatClock(row.created_at),
     rollLabel: row.roll_label ?? undefined,
@@ -139,24 +141,26 @@ export function useRoomRealtime({
    * 返回 null 表示成功；返回 string 表示错误信息（由输入框内联展示）。
    */
   const sendMessage = useCallback(
-    async (content: string): Promise<string | null> => {
+    async (content: string, as?: SpeakAs): Promise<string | null> => {
       const trimmed = content.trim();
       if (!trimmed) return null;
 
+      // 身份：as 提供时以所选身份显示（姓名/头像/角色）；sender_id 恒为本人（RLS 必需）
       const base = {
         room_id: roomId,
         sender_id: currentUser.id,
-        sender_name: currentUser.username,
-        sender_role: currentRole,
-        sender_avatar: currentUser.avatarUrl,
+        sender_name: as?.name ?? currentUser.username,
+        sender_role: as?.role ?? currentRole,
+        sender_avatar: as?.avatarUrl ?? currentUser.avatarUrl,
       };
+      const skills = as?.skills ?? activeSkills;
 
       const parsed = parseDiceCommand(trimmed);
 
       let payload: Record<string, unknown>;
       if (parsed === null) {
         // 普通聊天
-        payload = { ...base, type: "chat", content: trimmed };
+        payload = { ...base, type: as?.type ?? "chat", content: trimmed };
       } else if (parsed.kind === "raw") {
         // /r 1d100：纯点数，无目标无判定
         payload = {
@@ -181,10 +185,10 @@ export function useRoomRealtime({
           is_hidden: parsed.hidden,
         };
       } else {
-        // /r 侦查：从当前活跃角色技能表取值
-        const value = findSkillValue(activeSkills, parsed.skillName);
+        // /r 侦查：从当前身份技能表取值（人物卡/NPC 用其技能，自己用活跃角色）
+        const value = findSkillValue(skills, parsed.skillName);
         if (value === null) {
-          return activeSkills.length === 0
+          return skills.length === 0
             ? "请先在右侧「我的角色」创建并选择角色"
             : `角色没有技能「${parsed.skillName}」`;
         }

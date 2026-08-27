@@ -23,26 +23,30 @@ function imageStyle(url: string | null, opacity: number, blur: number, fallback:
 /**
  * 聊天背景分层（从底到顶）：
  * 1. 主题底色（由父容器 / body 提供）
- * 2. 背景槽位：房间背景（透明度 bgOpacity + 模糊 bgBlur）或个人背景（覆盖房间，同层互斥）
+ * 2. 背景槽位：房间背景（透明度 roomBgOpacity + 模糊 roomBgBlur）或个人背景（覆盖房间，同层互斥）
  * 3. 消息气泡（z 更高，由内容区保证）
  */
 export default function Background({
   mode,
-  bgOpacity,
   bgCustom,
-  bgBlur,
+  roomBgOpacity,
+  roomBgBlur,
   personalBg,
+  personalBgOpacity,
+  personalBgBlur,
 }: {
   mode: BgMode;
-  bgOpacity: number;
   bgCustom?: string | null;
-  bgBlur?: number;
+  roomBgOpacity: number;
+  roomBgBlur?: number;
   personalBg?: string | null;
+  personalBgOpacity?: number;
+  personalBgBlur?: number;
 }) {
   const layer =
     mode === "personal"
-      ? imageStyle(personalBg ?? null, 1, 0, PERSONAL_BG)
-      : imageStyle(bgCustom ?? null, bgOpacity, bgBlur ?? 0, ROOM_BG);
+      ? imageStyle(personalBg ?? null, personalBgOpacity ?? 1, personalBgBlur ?? 0, PERSONAL_BG)
+      : imageStyle(bgCustom ?? null, roomBgOpacity, roomBgBlur ?? 0, ROOM_BG);
 
   return (
     <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>

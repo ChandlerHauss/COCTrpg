@@ -1,40 +1,51 @@
 "use client";
 
 import { useState } from "react";
-
-const COMMANDS = ["/r 侦查", "/r 50", "/rh 潜行", "/r 1d100"];
+import type { SpeakAs, SpeakAsOption } from "@/lib/types";
+import SpeakAsChips from "./SpeakAsChips";
 
 export default function ChatInput({
   onSend,
   disabled = false,
+  speakAsOptions = [],
+  selectedKey = null,
+  onSelectKey,
 }: {
-  onSend?: (content: string) => Promise<string | null>;
+  onSend?: (content: string, as?: SpeakAs) => Promise<string | null>;
   disabled?: boolean;
+  speakAsOptions?: SpeakAsOption[];
+  selectedKey?: string | null;
+  onSelectKey?: (key: string) => void;
 }) {
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  // 未选择时默认第一个（自己）
+  const selected =
+    speakAsOptions.find((o) => o.key === selectedKey) ?? speakAsOptions[0] ?? null;
 
   async function submit() {
     const trimmed = text.trim();
     if (!trimmed || !onSend) return;
     setError(null);
-    const err = await onSend(trimmed);
+    const err = await onSend(trimmed, selected?.as);
     if (err) setError(err);
     else setText("");
   }
 
   return (
     <div className="glass-strong rounded-2xl p-3">
-      <div className="mb-2 flex flex-wrap gap-1.5">
-        {COMMANDS.map((c) => (
-          <span
-            key={c}
-            className="rounded-lg bg-foreground/5 px-2 py-0.5 font-mono text-[10px] text-muted"
-          >
-            {c}
-          </span>
-        ))}
-      </div>
+      {/* 身份选择器：以什么身份发送消息 */}
+      {speakAsOptions.length > 0 && (
+        <div className="mb-2">
+          <SpeakAsChips
+            options={speakAsOptions}
+            selectedKey={selectedKey}
+            onSelectKey={(key) => onSelectKey?.(key)}
+          />
+        </div>
+      )}
+
       <div className="flex gap-2">
         <input
           type="text"

@@ -61,6 +61,10 @@ export interface RoomMember {
   role: Role;
   avatarUrl: string | null;
   bgPersonal: string | null;
+  bgPersonalOpacity: number;
+  bgPersonalBlur: number;
+  bgRoomOpacity: number;
+  bgRoomBlur: number;
   user: User;
   character: Character | null;
 }
@@ -73,8 +77,24 @@ export interface Room {
   maxPlayers: number;
   hostId: string;
   bgCustom: string | null;
-  bgOpacity: number;
-  bgBlur: number;
+  hasPassword: boolean;
+}
+
+/** 发言身份：聊天/骰子消息按此身份显示姓名、头像、角色与技能 */
+export interface SpeakAs {
+  name: string;
+  avatarUrl: string | null;
+  role: Role | "npc";
+  type: "chat" | "npc"; // 决定消息渲染类型（骰子消息恒为 "dice"，忽略此字段）
+  skills?: Skill[]; // 该身份的技能（人物卡/NPC 时，用于 /r 技能 判定）
+}
+
+/** 身份选择器的一项（key 用于 React key + 选中态） */
+export interface SpeakAsOption {
+  key: string;
+  as: SpeakAs;
+  /** 对应的人物卡 id（仅 PC 选项，用于把选中 PC 持久化为活跃角色） */
+  characterId?: string;
 }
 
 export interface Message {
@@ -83,6 +103,7 @@ export interface Message {
   senderName: string;
   senderRole?: Role | "npc" | "system";
   senderAvatar: string | null;
+  senderId: string | null; // 用于「自己靠右」分栏；system 消息为 null
   content: string;
   timestamp: string;
   // 骰子相关字段

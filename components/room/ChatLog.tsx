@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { ConnectionStatus, Message, Room } from "@/lib/types";
+import type { ConnectionStatus, Message, Room, SpeakAs, SpeakAsOption } from "@/lib/types";
 import Background, { type BgMode } from "./Background";
+import type { PersonalBg, RoomBg } from "@/hooks/useBackground";
 import MessageRenderer from "./messages/MessageRenderer";
 import ChatInput from "./ChatInput";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -26,11 +27,13 @@ export default function ChatLog({
   messages,
   revealHidden,
   bgMode,
-  bgOpacity,
-  bgCustom,
-  bgBlur,
+  roomBg,
   personalBg,
   onSend,
+  speakAsOptions = [],
+  selectedKey = null,
+  onSelectKey,
+  currentUserId,
   connectionStatus = "connected",
 }: {
   roomName: string;
@@ -38,11 +41,13 @@ export default function ChatLog({
   messages: Message[];
   revealHidden: boolean;
   bgMode: BgMode;
-  bgOpacity: number;
-  bgCustom?: string | null;
-  bgBlur?: number;
-  personalBg?: string | null;
-  onSend?: (content: string) => Promise<string | null>;
+  roomBg: RoomBg;
+  personalBg: PersonalBg;
+  onSend?: (content: string, as?: SpeakAs) => Promise<string | null>;
+  speakAsOptions?: SpeakAsOption[];
+  selectedKey?: string | null;
+  onSelectKey?: (key: string) => void;
+  currentUserId: string;
   connectionStatus?: ConnectionStatus;
 }) {
   const [scrolled, setScrolled] = useState(false);
@@ -60,10 +65,12 @@ export default function ChatLog({
     <main className="glass relative flex h-full min-w-0 flex-col overflow-hidden rounded-3xl">
       <Background
         mode={bgMode}
-        bgOpacity={bgOpacity}
-        bgCustom={bgCustom}
-        bgBlur={bgBlur}
-        personalBg={personalBg}
+        bgCustom={roomBg.custom}
+        roomBgOpacity={roomBg.opacity}
+        roomBgBlur={roomBg.blur}
+        personalBg={personalBg.url}
+        personalBgOpacity={personalBg.opacity}
+        personalBgBlur={personalBg.blur}
       />
 
       {/* 顶部液态导航栏：滚动时收缩 + 增强磨砂 */}
@@ -97,7 +104,12 @@ export default function ChatLog({
         {messages.length > 0 ? (
           <div className="mx-auto flex max-w-2xl flex-col gap-3">
             {messages.map((m) => (
-              <MessageRenderer key={m.id} message={m} revealHidden={revealHidden} />
+              <MessageRenderer
+                key={m.id}
+                message={m}
+                revealHidden={revealHidden}
+                currentUserId={currentUserId}
+              />
             ))}
           </div>
         ) : (
@@ -112,6 +124,9 @@ export default function ChatLog({
         <ChatInput
           onSend={onSend}
           disabled={!onSend || connectionStatus !== "connected"}
+          speakAsOptions={speakAsOptions}
+          selectedKey={selectedKey}
+          onSelectKey={onSelectKey}
         />
       </div>
     </main>

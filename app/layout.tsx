@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
+import LoadingBar from "@/components/ui/LoadingBar";
 
 export const metadata: Metadata = {
   title: "COC 跑团平台",
@@ -16,7 +17,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="h-full">{children}</body>
+      <body className="h-full">
+        {children}
+        <LoadingBar />
+      </body>
     </html>
   );
 }
