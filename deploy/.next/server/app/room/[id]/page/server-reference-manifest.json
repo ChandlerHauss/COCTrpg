@@ -1,0 +1,49 @@
+{
+  "node": {
+    "40381ee589c3322e718bb719614a85f4e30904aae4": {
+      "workers": {
+        "app/room/[id]/page": {
+          "moduleId": 44338,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "leaveRoom",
+      "filename": "app/actions/room.ts"
+    },
+    "4034439bce5e2ed9ddacca4237c705549fc40306c1": {
+      "workers": {
+        "app/room/[id]/page": {
+          "moduleId": 44338,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "deleteRoom",
+      "filename": "app/actions/room.ts"
+    },
+    "6035213be39ed12d617917e365770282c6ade6f51a": {
+      "workers": {
+        "app/room/[id]/page": {
+          "moduleId": 44338,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "updateRoom",
+      "filename": "app/actions/room.ts"
+    },
+    "607fec15172d0db4e1096855af94c01df8ca7c146f": {
+      "workers": {
+        "app/room/[id]/page": {
+          "moduleId": 44338,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "joinRoom",
+      "filename": "app/actions/room.ts"
+    }
+  },
+  "edge": {}
+}

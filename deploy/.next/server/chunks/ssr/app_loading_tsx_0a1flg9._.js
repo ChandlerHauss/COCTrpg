@@ -1,0 +1,3 @@
+module.exports=[63588,a=>{"use strict";var b=a.i(7997);function c(){return(0,b.jsx)("div",{className:"fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm [animation:mask-in_0.25s_ease-out_0.2s_both]",children:(0,b.jsxs)("div",{className:"glass-strong flex flex-col items-center gap-3 rounded-3xl px-8 py-6",children:[(0,b.jsx)("div",{className:"h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent"}),(0,b.jsx)("p",{className:"text-sm text-muted",children:"加载中…"})]})})}a.s(["default",0,function(){return(0,b.jsx)(c,{})}],63588)},45538,function(a){a.n(a.i(63588))}];
+
+//# sourceMappingURL=app_loading_tsx_0a1flg9._.js.map

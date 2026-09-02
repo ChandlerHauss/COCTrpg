@@ -1,0 +1,26 @@
+1:"$Sreact.fragment"
+2:I[1852,["/_next/static/chunks/0148x3s3m4u-y.js","/_next/static/chunks/0b_c40jik7jjd.js"],"default"]
+3:I[22016,["/_next/static/chunks/0148x3s3m4u-y.js","/_next/static/chunks/0b_c40jik7jjd.js"],""]
+4:I[97367,["/_next/static/chunks/0148x3s3m4u-y.js"],"OutletBoundary"]
+5:"$Sreact.suspense"
+9:I[97367,["/_next/static/chunks/0148x3s3m4u-y.js"],"ViewportBoundary"]
+a:I[97367,["/_next/static/chunks/0148x3s3m4u-y.js"],"MetadataBoundary"]
+b:I[27201,["/_next/static/chunks/0148x3s3m4u-y.js"],"IconMark"]
+d:I[39756,["/_next/static/chunks/0148x3s3m4u-y.js"],"default"]
+e:I[37457,["/_next/static/chunks/0148x3s3m4u-y.js"],"default"]
+11:I[39756,["/_next/static/chunks/0148x3s3m4u-y.js"],"LoadingBoundaryProvider"]
+12:I[24297,["/_next/static/chunks/0148x3s3m4u-y.js"],"default"]
+:HL["/_next/static/chunks/41in7afnyd5b3.css","style"]
+8:X
+10:X
+10:C
+0:{"buildId":"rRTzPdTrqvkWFA0T9m4si","data":[{"rsc":["$","$1","c",{"children":[["$","main",null,{"className":"flex min-h-screen items-center justify-center px-6","children":["$","div",null,{"className":"glass-strong w-full max-w-sm rounded-3xl p-8","children":[["$","h1",null,{"className":"text-2xl font-semibold tracking-tight text-foreground","children":"登录"}],["$","p",null,{"className":"mt-1.5 text-sm text-muted","children":"欢迎回来，继续你的调查"}],["$","div",null,{"className":"mt-6","children":["$","$L2",null,{"mode":"login"}]}],["$","p",null,{"className":"mt-6 text-center text-xs text-muted","children":["$","$L3",null,{"href":"/","className":"text-accent hover:underline","children":"返回首页"}]}]]}]}],[["$","script","script-0",{"src":"/_next/static/chunks/0b_c40jik7jjd.js","async":true}]],["$","$L4",null,{"children":["$","$5",null,{"name":"Next.MetadataOutlet","children":"$@6"}]}]]}],"isPartial":"$@7","staleTime":"$8","varyParams":null},{"rsc":["$","$1","h",{"children":[null,["$","$L9",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$La",null,{"children":["$","$5",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"COC 跑团平台"}],["$","meta","1",{"name":"description","content":"克苏鲁的呼唤 · 多人实时在线跑团房间系统"}],["$","link","2",{"rel":"icon","href":"/favicon.ico?favicon.2vob68tjqpejf.ico","sizes":"256x256","type":"image/x-icon"}],["$","$Lb","3",{}]]}]}]}],null]}],"isPartial":"$@c","staleTime":"$8","varyParams":null},{"rsc":["$","$1","c",{"children":[null,["$","$Ld",null,{"parallelRouterKey":"children","template":["$","$Le",null,{}]}]]}],"isPartial":"$@f","staleTime":"$8","varyParams":"$10"},{"rsc":["$","$L11",null,{"loading":[["$","div","l",{"className":"fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm [animation:mask-in_0.25s_ease-out_0.2s_both]","children":["$","div",null,{"className":"glass-strong flex flex-col items-center gap-3 rounded-3xl px-8 py-6","children":[["$","div",null,{"className":"h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent"}],["$","p",null,{"className":"text-sm text-muted","children":"加载中…"}]]}]}],[],null],"children":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/41in7afnyd5b3.css","precedence":"next"}],["$","script","script-0",{"src":"/_next/static/chunks/0148x3s3m4u-y.js","async":true}]],["$","html",null,{"lang":"zh-CN","className":"h-full antialiased","suppressHydrationWarning":true,"children":[["$","head",null,{"children":["$","script",null,{"dangerouslySetInnerHTML":{"__html":"(function(){var t;try{t=localStorage.getItem('theme');}catch(e){t=null;}if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();"}}]}],["$","body",null,{"className":"h-full","children":[["$","$Ld",null,{"parallelRouterKey":"children","template":["$","$Le",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}],["$","$L12",null,{}]]}]]}]]}]}],"isPartial":"$@13","staleTime":"$8","varyParams":null}],"isUpgradeableISRFallback":false,"a":"$@14","rootVaryParams":null,"needsRuntimeRequest":"$@15"}
+6:null
+8:300
+15:true
+8:C
+14:0
+c:"$undefined"
+f:"$undefined"
+13:"$undefined"
+7:"$undefined"

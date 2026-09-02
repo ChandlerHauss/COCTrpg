@@ -1,0 +1,38 @@
+{
+  "node": {
+    "602546091d15fbca39175f748af2563fbd719ab9b6": {
+      "workers": {
+        "app/lobby/page": {
+          "moduleId": 37553,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "createRoom",
+      "filename": "app/actions/room.ts"
+    },
+    "607fec15172d0db4e1096855af94c01df8ca7c146f": {
+      "workers": {
+        "app/lobby/page": {
+          "moduleId": 37553,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "joinRoom",
+      "filename": "app/actions/room.ts"
+    },
+    "008a2a11658a1ef4fcc266b778afd706edf09a1fb2": {
+      "workers": {
+        "app/lobby/page": {
+          "moduleId": 37553,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "signOut",
+      "filename": "app/actions/auth.ts"
+    }
+  },
+  "edge": {}
+}
